@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.chatassistant"
+    namespace = "io.valneva.chatassistant"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.chatassistant"
+        applicationId = "io.valneva.chatassistant"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -49,6 +49,7 @@ android {
 
 dependencies {
     // Core / Compose
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.runtime.ktx)
