@@ -1,3 +1,47 @@
 <resources>
     <string name="app_name">Chat Assistant</string>
+
+    <!-- Common -->
+    <string name="retry">Повторить</string>
+    <string name="back">Назад</string>
+
+    <!-- Auth -->
+    <string name="auth_gate_loading">Проверяем вход...</string>
+
+    <!-- Login -->
+    <string name="login_title">Вход в аккаунт</string>
+    <string name="login_subtitle">Продолжите работу с чатами и AI-ассистентом</string>
+    <string name="register_title">Регистрация</string>
+    <string name="register_subtitle">Создайте аккаунт, чтобы начать общение</string>
+    <string name="email_label">E-mail</string>
+    <string name="password_label">Пароль</string>
+    <string name="confirm_password_label">Подтвердите пароль</string>
+    <string name="sign_in_button">Войти</string>
+    <string name="create_account_button">Создать аккаунт</string>
+    <string name="continue_with_google_button">Войти через Google</string>
+    <string name="show_password">Показать пароль</string>
+    <string name="hide_password">Скрыть пароль</string>
+    <string name="register">Регистрация</string>
+    <string name="register_action">Регистрация</string>
+
+    <!-- Auth errors -->
+    <string name="auth_error_invalid_email">Введите корректный e-mail</string>
+    <string name="auth_error_empty_password">Введите пароль</string>
+    <string name="auth_error_short_password">Пароль должен содержать не менее 6 символов</string>
+    <string name="auth_error_passwords_mismatch">Пароли не совпадают</string>
+    <string name="auth_error_invalid_credentials">Неверный e-mail или пароль</string>
+    <string name="auth_error_email_in_use">Этот e-mail уже зарегистрирован</string>
+    <string name="auth_error_weak_password">Придумайте более надежный пароль</string>
+    <string name="auth_error_no_network">Нет подключения к интернету</string>
+    <string name="auth_error_google_failed">Не удалось выполнить вход через Google</string>
+    <string name="auth_error_google_no_account">Не выбран аккаунт Google</string>
+    <string name="auth_error_too_many_requests">Слишком много попыток. Попробуйте позже</string>
+    <string name="auth_error_generic">Что-то пошло не так. Попробуйте еще раз</string>
+    <string name="auth_error_google_unavailable">Вход через Google недоступен на этом устройстве</string>
+
+    <!-- Chat -->
+    <string name="chats_placeholder_title">Чаты</string>
+    <string name="chat_placeholder_title">Чат</string>
+    <string name="profile_placeholder_title">Профиль</string>
+    <string name="placeholder_message">Экран</string>
 </resources>
