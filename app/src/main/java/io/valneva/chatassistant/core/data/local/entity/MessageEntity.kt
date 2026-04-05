@@ -28,6 +28,7 @@ data class MessageEntity(
     val chatId: String,
     val userId: String,
     val role: MessageRole,
+    val replyToMessageId: String? = null,
     val text: String,
     val status: MessageStatus,
     val createdAt: Long,

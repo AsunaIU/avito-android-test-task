@@ -18,6 +18,10 @@ class ChatRepository @Inject constructor(
     private val messageDao: MessageDao,
 ) {
 
+    data class PendingAssistantReply(
+        val assistantMessageId: String,
+    )
+
     fun observeChat(
         chatId: String,
         userId: String,
@@ -32,17 +36,22 @@ class ChatRepository @Inject constructor(
         chatId: String,
         userId: String,
         text: String,
-    ) {
+    ): PendingAssistantReply? {
         val trimmedText = text.trim()
-        if (trimmedText.isBlank()) return
+        if (trimmedText.isBlank()) return null
+
+        var pendingAssistantReply: PendingAssistantReply? = null
 
         database.withTransaction {
             val chat = chatDao.getChatById(chatId = chatId, userId = userId) ?: return@withTransaction
             val now = System.currentTimeMillis()
+            val userMessageId = UUID.randomUUID().toString()
+            val assistantMessageId = UUID.randomUUID().toString()
+            val assistantCreatedAt = now + 1
 
             messageDao.insertMessage(
                 MessageEntity(
-                    id = UUID.randomUUID().toString(),
+                    id = userMessageId,
                     chatId = chatId,
                     userId = userId,
                     role = MessageRole.USER,
@@ -52,15 +61,90 @@ class ChatRepository @Inject constructor(
                 ),
             )
 
+            messageDao.insertMessage(
+                MessageEntity(
+                    id = assistantMessageId,
+                    chatId = chatId,
+                    userId = userId,
+                    role = MessageRole.ASSISTANT,
+                    replyToMessageId = userMessageId,
+                    text = "",
+                    status = MessageStatus.GENERATING,
+                    createdAt = assistantCreatedAt,
+                ),
+            )
+
             chatDao.updateChatSummary(
                 chatId = chatId,
                 userId = userId,
                 title = resolveChatTitle(chat = chat, firstMessage = trimmedText),
-                updatedAt = now,
+                updatedAt = assistantCreatedAt,
                 lastMessagePreview = trimmedText.take(MAX_PREVIEW_LENGTH),
                 totalTokens = chat.totalTokens,
             )
+
+            pendingAssistantReply = PendingAssistantReply(assistantMessageId = assistantMessageId)
         }
+
+        return pendingAssistantReply
+    }
+
+    suspend fun retryAssistantReply(
+        messageId: String,
+        userId: String,
+    ): PendingAssistantReply? {
+        var pendingAssistantReply: PendingAssistantReply? = null
+
+        database.withTransaction {
+            val assistantMessage = messageDao.getMessageById(messageId = messageId, userId = userId)
+                ?.takeIf { message ->
+                    message.role == MessageRole.ASSISTANT && !message.replyToMessageId.isNullOrBlank()
+                }
+                ?: return@withTransaction
+
+            val chat = chatDao.getChatById(chatId = assistantMessage.chatId, userId = userId) ?: return@withTransaction
+
+            messageDao.updateMessage(
+                messageId = assistantMessage.id,
+                userId = userId,
+                text = assistantMessage.text,
+                status = MessageStatus.GENERATING,
+                errorMessage = null,
+                tokenUsage = assistantMessage.tokenUsage,
+            )
+
+            chatDao.updateChatSummary(
+                chatId = chat.id,
+                userId = userId,
+                title = chat.title,
+                updatedAt = System.currentTimeMillis(),
+                lastMessagePreview = chat.lastMessagePreview,
+                totalTokens = chat.totalTokens,
+            )
+
+            pendingAssistantReply = PendingAssistantReply(assistantMessageId = assistantMessage.id)
+        }
+
+        return pendingAssistantReply
+    }
+
+    suspend fun markAssistantReplyFailed(
+        messageId: String,
+        userId: String,
+        errorMessage: String,
+    ) {
+        val assistantMessage = messageDao.getMessageById(messageId = messageId, userId = userId)
+            ?.takeIf { message -> message.role == MessageRole.ASSISTANT }
+            ?: return
+
+        messageDao.updateMessage(
+            messageId = assistantMessage.id,
+            userId = userId,
+            text = assistantMessage.text,
+            status = MessageStatus.ERROR,
+            errorMessage = errorMessage,
+            tokenUsage = assistantMessage.tokenUsage,
+        )
     }
 
     private fun resolveChatTitle(

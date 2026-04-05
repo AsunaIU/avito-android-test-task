@@ -55,6 +55,9 @@
     <string name="chats_auth_required_body">Чтобы работать с локальными чатами, сначала войдите в аккаунт.</string>
     <string name="message_input_label">Сообщение</string>
     <string name="send_message">Отправить сообщение</string>
+    <string name="assistant_generating">Ассистент печатает</string>
+    <string name="assistant_error">Не удалось получить ответ</string>
+    <string name="share_response">Поделиться</string>
     <string name="chat_not_found_title">Чат не найден</string>
     <string name="chat_not_found_body">Этот диалог не удалось загрузить. Вернитесь назад и откройте другой чат.</string>
     <string name="chat_empty_hint">Напишите первое сообщение, чтобы начать переписку. История сохранится локально между открытиями экрана.</string>
@@ -66,11 +69,11 @@
 
     <!-- Main screens -->
     <string name="profile_screen_title">Настройки приложения</string>
-    <string name="profile_screen_description">Пока здесь доступно управление темой. Дальше добавим данные аккаунта, фото и выход из профиля.</string>
+    <string name="profile_screen_description">Здесь будут данные аккаунта и выход.</string>
     <string name="dark_theme">Тёмная тема</string>
     <string name="dark_theme_description">Переключайте оформление вручную, настройка сохранится между запусками.</string>
     <string name="images_screen_title">Генерация изображений</string>
-    <string name="images_screen_description">Экран уже встроен в основную навигацию, поэтому позже сюда можно будет добавить генерацию и историю результатов без переделки shell.</string>
-    <string name="images_screen_card_title">Маршрут готов</string>
-    <string name="images_screen_card_body">Сначала доведём до конца текстовые чаты и профиль, затем подключим сценарий с изображениями.</string>
+    <string name="images_screen_description">Раздел изображений в работе.</string>
+    <string name="images_screen_card_title">Скоро</string>
+    <string name="images_screen_card_body">Генерация появится здесь.</string>
 </resources>

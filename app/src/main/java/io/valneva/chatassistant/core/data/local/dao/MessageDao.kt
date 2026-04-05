@@ -31,6 +31,18 @@ interface MessageDao {
 
     @Query(
         """
+        SELECT * FROM messages
+        WHERE id = :messageId AND userId = :userId
+        LIMIT 1
+        """,
+    )
+    suspend fun getMessageById(
+        messageId: String,
+        userId: String,
+    ): MessageEntity?
+
+    @Query(
+        """
         UPDATE messages
         SET text = :text,
             status = :status,
