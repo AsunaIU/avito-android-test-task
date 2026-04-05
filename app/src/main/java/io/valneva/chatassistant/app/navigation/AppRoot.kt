@@ -8,13 +8,21 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun AppRoot(modifier: Modifier = Modifier) {
+fun AppRoot(
+    startDestination: String?,
+    modifier: Modifier = Modifier,
+) {
     val navController = rememberNavController()
 
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
     ) {
-        AppNavHost(navController = navController)
+        startDestination?.let { route ->
+            AppNavHost(
+                navController = navController,
+                startDestination = route,
+            )
+        }
     }
 }

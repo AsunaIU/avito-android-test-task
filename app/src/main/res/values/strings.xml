@@ -5,9 +5,6 @@
     <string name="retry">Повторить</string>
     <string name="back">Назад</string>
 
-    <!-- Auth -->
-    <string name="auth_gate_loading">Проверяем вход...</string>
-
     <!-- Login -->
     <string name="login_title">Вход в аккаунт</string>
     <string name="login_subtitle">Продолжите работу с чатами и AI-ассистентом</string>

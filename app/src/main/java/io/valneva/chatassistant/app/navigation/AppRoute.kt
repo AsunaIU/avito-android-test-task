@@ -1,7 +1,6 @@
 package io.valneva.chatassistant.app.navigation
 
 sealed class AppRoute(val route: String) {
-    data object AuthGate : AppRoute("auth_gate")
     data object Login : AppRoute("login")
     data object Register : AppRoute("register")
     data object Chats : AppRoute("chats")

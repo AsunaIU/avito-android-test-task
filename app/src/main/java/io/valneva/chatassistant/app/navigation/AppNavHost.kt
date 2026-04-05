@@ -21,35 +21,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import io.valneva.chatassistant.R
-import io.valneva.chatassistant.feature.auth.presentation.authgate.AuthGateScreen
 import io.valneva.chatassistant.feature.auth.presentation.login.LoginScreen
 import io.valneva.chatassistant.feature.auth.presentation.register.RegisterScreen
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    startDestination: String,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppRoute.AuthGate.route,
+        startDestination = startDestination,
         modifier = modifier,
     ) {
-        composable(route = AppRoute.AuthGate.route) {
-            AuthGateScreen(
-                onNavigateToLogin = {
-                    navController.navigate(AppRoute.Login.route) {
-                        popUpTo(AppRoute.AuthGate.route) {
-                            inclusive = true
-                        }
-                    }
-                },
-                onNavigateToChats = {
-                    navController.navigateToChats(clearBackStack = true)
-                },
-            )
-        }
-
         composable(route = AppRoute.Login.route) {
             LoginScreen(
                 onNavigateToRegister = {
