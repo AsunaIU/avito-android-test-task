@@ -1,3 +1,15 @@
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use(::load)
+    }
+}
+
+val gigaChatAuthKey = localProperties.getProperty("GIGACHAT_AUTH_KEY")
+    ?: error("Add GIGACHAT_AUTH_KEY to local.properties")
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,6 +31,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "GIGACHAT_AUTH_KEY", "\"$gigaChatAuthKey\"")
+        buildConfigField("String", "GIGACHAT_SCOPE", "\"GIGACHAT_API_PERS\"")
+        buildConfigField("String", "GIGACHAT_MODEL", "\"GigaChat\"")
+        buildConfigField("String", "GIGACHAT_API_BASE_URL", "\"https://gigachat.devices.sberbank.ru/api/v1/\"")
+        buildConfigField("String", "GIGACHAT_OAUTH_BASE_URL", "\"https://ngw.devices.sberbank.ru:9443/api/v2/\"")
     }
 
     buildTypes {
@@ -44,6 +62,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -89,10 +108,10 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.moshi)
     implementation(libs.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
     ksp(libs.moshi.kotlin.codegen)
-    debugImplementation(libs.okhttp.logging.interceptor)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
