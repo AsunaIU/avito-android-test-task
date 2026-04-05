@@ -9,7 +9,6 @@ import io.valneva.chatassistant.core.data.local.entity.MessageEntity
 import io.valneva.chatassistant.feature.auth.domain.AuthInteractor
 import io.valneva.chatassistant.feature.chat.data.ChatRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -98,8 +97,9 @@ class ConversationViewModel @Inject constructor(
             )
 
             pendingAssistantReply?.let { pendingReply ->
-                simulateAssistantFailure(
-                    messageId = pendingReply.assistantMessageId,
+                repository.generateAssistantReply(
+                    chatId = chatId,
+                    assistantMessageId = pendingReply.assistantMessageId,
                     userId = userId,
                 )
             }
@@ -115,28 +115,11 @@ class ConversationViewModel @Inject constructor(
                 userId = userId,
             ) ?: return@launch
 
-            simulateAssistantFailure(
-                messageId = pendingAssistantReply.assistantMessageId,
+            repository.generateAssistantReply(
+                chatId = chatId,
+                assistantMessageId = pendingAssistantReply.assistantMessageId,
                 userId = userId,
             )
         }
-    }
-
-    private fun simulateAssistantFailure(
-        messageId: String,
-        userId: String,
-    ) {
-        viewModelScope.launch {
-            delay(900)
-            repository.markAssistantReplyFailed(
-                messageId = messageId,
-                userId = userId,
-                errorMessage = ASSISTANT_ERROR_MESSAGE,
-            )
-        }
-    }
-
-    private companion object {
-        const val ASSISTANT_ERROR_MESSAGE = "Не удалось получить ответ"
     }
 }

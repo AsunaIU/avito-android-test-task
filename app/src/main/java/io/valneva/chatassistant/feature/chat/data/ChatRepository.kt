@@ -8,6 +8,8 @@ import io.valneva.chatassistant.core.data.local.entity.ChatEntity
 import io.valneva.chatassistant.core.data.local.entity.MessageEntity
 import io.valneva.chatassistant.core.data.local.model.MessageRole
 import io.valneva.chatassistant.core.data.local.model.MessageStatus
+import io.valneva.chatassistant.core.data.remote.gigachat.GigaChatMessageDto
+import io.valneva.chatassistant.core.data.remote.gigachat.GigaChatRemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 import javax.inject.Inject
@@ -16,6 +18,7 @@ class ChatRepository @Inject constructor(
     private val database: AppDatabase,
     private val chatDao: ChatDao,
     private val messageDao: MessageDao,
+    private val gigaChatRemoteDataSource: GigaChatRemoteDataSource,
 ) {
 
     data class PendingAssistantReply(
@@ -147,6 +150,74 @@ class ChatRepository @Inject constructor(
         )
     }
 
+    suspend fun generateAssistantReply(
+        chatId: String,
+        userId: String,
+        assistantMessageId: String,
+    ) {
+        val chat = chatDao.getChatById(chatId = chatId, userId = userId) ?: return
+        val assistantMessage = messageDao.getMessageById(messageId = assistantMessageId, userId = userId)
+            ?.takeIf { message -> message.role == MessageRole.ASSISTANT }
+            ?: return
+
+        try {
+            val reply = gigaChatRemoteDataSource.generateReply(
+                messages = buildConversationHistory(chatId = chatId, userId = userId),
+            )
+
+            val now = System.currentTimeMillis()
+            val replyPreview = reply.content.take(MAX_PREVIEW_LENGTH)
+
+            database.withTransaction {
+                messageDao.updateMessage(
+                    messageId = assistantMessage.id,
+                    userId = userId,
+                    text = reply.content,
+                    status = MessageStatus.SENT,
+                    errorMessage = null,
+                    tokenUsage = reply.totalTokens,
+                )
+
+                chatDao.updateChatSummary(
+                    chatId = chat.id,
+                    userId = userId,
+                    title = chat.title,
+                    updatedAt = now,
+                    lastMessagePreview = replyPreview,
+                    totalTokens = chat.totalTokens + (reply.totalTokens ?: 0),
+                )
+            }
+        } catch (error: Exception) {
+            markAssistantReplyFailed(
+                messageId = assistantMessage.id,
+                userId = userId,
+                errorMessage = error.message ?: DEFAULT_ASSISTANT_ERROR,
+            )
+        }
+    }
+
+    private suspend fun buildConversationHistory(
+        chatId: String,
+        userId: String,
+    ): List<GigaChatMessageDto> {
+        return messageDao.getMessages(chatId = chatId, userId = userId)
+            .mapNotNull { message ->
+                when (message.role) {
+                    MessageRole.USER -> message.text.takeIf { text -> text.isNotBlank() }?.let { text ->
+                        GigaChatMessageDto(role = ROLE_USER, content = text)
+                    }
+
+                    MessageRole.ASSISTANT -> {
+                        if (message.status == MessageStatus.SENT && message.text.isNotBlank()) {
+                            GigaChatMessageDto(role = ROLE_ASSISTANT, content = message.text)
+                        } else {
+                            null
+                        }
+                    }
+                }
+            }
+    }
+
     private fun resolveChatTitle(
         chat: ChatEntity,
         firstMessage: String,
@@ -168,8 +239,11 @@ class ChatRepository @Inject constructor(
 
     private companion object {
         const val DEFAULT_CHAT_TITLE = "Новый чат"
+        const val DEFAULT_ASSISTANT_ERROR = "Не удалось получить ответ"
         const val MAX_PREVIEW_LENGTH = 120
         const val MAX_TITLE_LENGTH = 40
         const val MAX_TITLE_WORDS = 6
+        const val ROLE_USER = "user"
+        const val ROLE_ASSISTANT = "assistant"
     }
 }

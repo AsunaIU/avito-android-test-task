@@ -23,6 +23,18 @@ interface MessageDao {
         userId: String,
     ): Flow<List<MessageEntity>>
 
+    @Query(
+        """
+        SELECT * FROM messages
+        WHERE chatId = :chatId AND userId = :userId
+        ORDER BY createdAt ASC
+        """,
+    )
+    suspend fun getMessages(
+        chatId: String,
+        userId: String,
+    ): List<MessageEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMessage(message: MessageEntity)
 
