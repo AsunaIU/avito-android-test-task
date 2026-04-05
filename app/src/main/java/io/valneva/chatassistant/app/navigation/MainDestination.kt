@@ -7,5 +7,7 @@ data class MainDestination(
     val route: String,
     @StringRes
     val titleRes: Int,
+    @StringRes
+    val drawerLabelRes: Int = titleRes,
     val icon: ImageVector,
 )
