@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -21,42 +21,29 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import io.valneva.chatassistant.R
-import io.valneva.chatassistant.feature.auth.presentation.authgate.AuthGateScreen
 import io.valneva.chatassistant.feature.auth.presentation.login.LoginScreen
 import io.valneva.chatassistant.feature.auth.presentation.register.RegisterScreen
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    startDestination: String,
+    isDarkTheme: Boolean,
+    onThemeToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
         navController = navController,
-        startDestination = AppRoute.AuthGate.route,
+        startDestination = startDestination,
         modifier = modifier,
     ) {
-        composable(route = AppRoute.AuthGate.route) {
-            AuthGateScreen(
-                onNavigateToLogin = {
-                    navController.navigate(AppRoute.Login.route) {
-                        popUpTo(AppRoute.AuthGate.route) {
-                            inclusive = true
-                        }
-                    }
-                },
-                onNavigateToChats = {
-                    navController.navigateToChats(clearBackStack = true)
-                },
-            )
-        }
-
         composable(route = AppRoute.Login.route) {
             LoginScreen(
                 onNavigateToRegister = {
                     navController.navigate(AppRoute.Register.route)
                 },
                 onNavigateToChats = {
-                    navController.navigateToChats(clearBackStack = true)
+                    navController.navigateToMain(clearBackStack = true)
                 },
             )
         }
@@ -65,13 +52,16 @@ fun AppNavHost(
             RegisterScreen(
                 onNavigateBack = navController::navigateUp,
                 onNavigateToChats = {
-                    navController.navigateToChats(clearBackStack = true)
+                    navController.navigateToMain(clearBackStack = true)
                 },
             )
         }
 
-        composable(route = AppRoute.Chats.route) {
-            PlaceholderScreen(title = stringResource(id = R.string.chats_placeholder_title))
+        composable(route = AppRoute.Main.route) {
+            MainScreen(
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle,
+            )
         }
 
         composable(
@@ -84,15 +74,11 @@ fun AppNavHost(
         ) {
             PlaceholderScreen(title = stringResource(id = R.string.chat_placeholder_title))
         }
-
-        composable(route = AppRoute.Profile.route) {
-            PlaceholderScreen(title = stringResource(id = R.string.profile_placeholder_title))
-        }
     }
 }
 
-private fun NavHostController.navigateToChats(clearBackStack: Boolean) {
-    navigate(AppRoute.Chats.route) {
+private fun NavHostController.navigateToMain(clearBackStack: Boolean) {
+    navigate(AppRoute.Main.route) {
         launchSingleTop = true
         restoreState = !clearBackStack
 
