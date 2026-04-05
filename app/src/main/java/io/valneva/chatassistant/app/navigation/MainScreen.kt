@@ -100,6 +100,15 @@ fun MainScreen(
 
     val currentRoute = backStackEntry?.destination?.route
     val currentDestination = destinations.firstOrNull { it.route == currentRoute } ?: destinations.first()
+    val homeDestination = remember(destinations) {
+        destinations.first { destination -> destination.route == AppRoute.Chats.route }
+    }
+    val profileDestination = remember(destinations) {
+        destinations.first { destination -> destination.route == AppRoute.Profile.route }
+    }
+    val imagesDestination = remember(destinations) {
+        destinations.first { destination -> destination.route == AppRoute.Images.route }
+    }
 
     fun navigateToDrawerDestination(route: String) {
         navController.navigate(route) {
@@ -189,18 +198,40 @@ fun MainScreen(
                         },
                     )
 
-                    destinations.forEach { destination ->
-                        DrawerActionItem(
-                            icon = destination.icon,
-                            label = stringResource(id = destination.drawerLabelRes),
-                            selected = destination.route == currentRoute,
-                            onClick = {
-                                focusManager.clearFocus()
-                                navigateToDrawerDestination(destination.route)
-                                closeDrawer()
-                            },
-                        )
-                    }
+                    DrawerActionItem(
+                        icon = imagesDestination.icon,
+                        label = stringResource(id = imagesDestination.drawerLabelRes),
+                        selected = imagesDestination.route == currentRoute,
+                        onClick = {
+                            focusManager.clearFocus()
+                            navigateToDrawerDestination(imagesDestination.route)
+                            closeDrawer()
+                        },
+                    )
+
+                    DrawerActionItem(
+                        icon = homeDestination.icon,
+                        label = stringResource(id = homeDestination.drawerLabelRes),
+                        selected = homeDestination.route == currentRoute,
+                        onClick = {
+                            focusManager.clearFocus()
+                            navigateToDrawerDestination(homeDestination.route)
+                            closeDrawer()
+                        },
+                    )
+
+                    Spacer(modifier = Modifier.size(12.dp))
+
+                    DrawerActionItem(
+                        icon = profileDestination.icon,
+                        label = stringResource(id = profileDestination.drawerLabelRes),
+                        selected = profileDestination.route == currentRoute,
+                        onClick = {
+                            focusManager.clearFocus()
+                            navigateToDrawerDestination(profileDestination.route)
+                            closeDrawer()
+                        },
+                    )
                 }
             }
         },
