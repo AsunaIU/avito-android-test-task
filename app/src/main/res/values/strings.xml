@@ -42,6 +42,24 @@
     <string name="nav_chats">Чаты</string>
     <string name="nav_profile">Профиль</string>
     <string name="nav_images">Изображения</string>
+    <string name="create_chat">Создать чат</string>
+    <string name="search_chats">Искать чаты</string>
+    <string name="clear_search">Очистить поиск</string>
+    <string name="chats_search_label">Поиск по названию</string>
+    <string name="chat_without_messages">Сообщений пока нет</string>
+    <string name="chats_empty_title">Пока нет ни одного чата</string>
+    <string name="chats_empty_body">Создайте первый диалог через кнопку справа внизу, и он сразу появится в списке.</string>
+    <string name="chats_empty_search_title">Ничего не найдено</string>
+    <string name="chats_empty_search_body">Попробуйте сократить запрос или очистить поиск, чтобы снова увидеть все чаты.</string>
+    <string name="chats_auth_required_title">Нужна авторизация</string>
+    <string name="chats_auth_required_body">Чтобы работать с локальными чатами, сначала войдите в аккаунт.</string>
+    <string name="message_input_label">Сообщение</string>
+    <string name="send_message">Отправить сообщение</string>
+    <string name="chat_not_found_title">Чат не найден</string>
+    <string name="chat_not_found_body">Этот диалог не удалось загрузить. Вернитесь назад и откройте другой чат.</string>
+    <string name="chat_empty_hint">Напишите первое сообщение, чтобы начать переписку. История сохранится локально между открытиями экрана.</string>
+    <string name="you_label">Вы</string>
+    <string name="assistant_label">Ассистент</string>
 
     <!-- Chat -->
     <string name="chats_placeholder_title">Чаты</string>
