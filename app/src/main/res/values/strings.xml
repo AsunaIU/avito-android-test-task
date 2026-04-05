@@ -63,7 +63,7 @@
     <string name="share_response">Поделиться</string>
     <string name="chat_not_found_title">Чат не найден</string>
     <string name="chat_not_found_body">Этот диалог не удалось загрузить. Вернитесь назад и откройте другой чат.</string>
-    <string name="chat_empty_hint">Напишите первое сообщение, чтобы начать переписку. История сохранится локально между открытиями экрана.</string>
+    <string name="chat_empty_hint">Напишите первое сообщение</string>
     <string name="you_label">Вы</string>
     <string name="assistant_label">Ассистент</string>
 
@@ -90,7 +90,10 @@
     <string name="dark_theme">Тёмная тема</string>
     <string name="dark_theme_description">Переключайте оформление вручную, настройка сохранится между запусками.</string>
     <string name="images_screen_title">Генерация изображений</string>
-    <string name="images_screen_description">Раздел изображений в работе.</string>
-    <string name="images_screen_card_title">Скоро</string>
-    <string name="images_screen_card_body">Генерация появится здесь.</string>
+    <string name="images_prompt_label">Промпт</string>
+    <string name="images_prompt_placeholder">Например: нарисуй розового кота в стиле Кандинского</string>
+    <string name="images_generate">Сгенерировать</string>
+    <string name="images_retry">Повторить</string>
+    <string name="images_empty_hint">Опишите изображение, и ассистент попробует сгенерировать его через GigaChat.</string>
+    <string name="images_result">Сгенерированное изображение</string>
 </resources>
