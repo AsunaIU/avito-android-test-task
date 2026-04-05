@@ -1,5 +1,10 @@
 package io.valneva.chatassistant.feature.auth.presentation.register
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,9 +35,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -59,16 +69,23 @@ fun RegisterScreen(
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val passwordFocusRequester = remember { FocusRequester() }
+    val confirmPasswordFocusRequester = remember { FocusRequester() }
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+    var isFormVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isFormVisible = true
+    }
 
     LaunchedEffect(viewModel, context) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 is RegisterUiEffect.ShowSnackbar -> {
                     val snackbarResult = snackbarHostState.showSnackbar(
-                        message = context.getString(effect.messageRes),
+                        message = context.resources.getString(effect.messageRes),
                         actionLabel = effect.showRetry.takeIf { it }?.let {
-                            context.getString(R.string.retry)
+                            context.resources.getString(R.string.retry)
                         },
                         duration = SnackbarDuration.Long,
                     )
@@ -124,121 +141,149 @@ fun RegisterScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .widthIn(max = 480.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                AnimatedVisibility(
+                    visible = isFormVisible,
+                    enter = fadeIn(
+                        animationSpec = tween(
+                            durationMillis = 420,
+                            easing = FastOutSlowInEasing,
+                        ),
+                    ) + slideInVertically(
+                        animationSpec = tween(
+                            durationMillis = 420,
+                            easing = FastOutSlowInEasing,
+                        ),
+                        initialOffsetY = { it / 8 },
+                    ),
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.register_subtitle),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .widthIn(max = 480.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.register_subtitle),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    AppTextField(
-                        value = uiState.email,
-                        onValueChange = viewModel::onEmailChanged,
-                        label = stringResource(id = R.string.email_label),
-                        enabled = !uiState.isLoading,
-                        isError = uiState.emailErrorRes != null,
-                        errorText = uiState.emailErrorRes?.let(context::getString),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Next,
-                        ),
-                    )
+                        AppTextField(
+                            value = uiState.email,
+                            onValueChange = viewModel::onEmailChanged,
+                            label = stringResource(id = R.string.email_label),
+                            enabled = !uiState.isLoading,
+                            isError = uiState.emailErrorRes != null,
+                            errorText = uiState.emailErrorRes?.let(context::getString),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Next,
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    passwordFocusRequester.requestFocus()
+                                },
+                            ),
+                        )
 
-                    AppTextField(
-                        value = uiState.password,
-                        onValueChange = viewModel::onPasswordChanged,
-                        label = stringResource(id = R.string.password_label),
-                        enabled = !uiState.isLoading,
-                        isError = uiState.passwordErrorRes != null,
-                        errorText = uiState.passwordErrorRes?.let(context::getString),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Next,
-                        ),
-                        visualTransformation = if (uiState.isPasswordVisible) {
-                            VisualTransformation.None
-                        } else {
-                            PasswordVisualTransformation()
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = viewModel::onPasswordVisibilityToggle) {
-                                Icon(
-                                    imageVector = if (uiState.isPasswordVisible) {
-                                        Icons.Rounded.VisibilityOff
-                                    } else {
-                                        Icons.Rounded.Visibility
-                                    },
-                                    contentDescription = stringResource(
-                                        id = if (uiState.isPasswordVisible) {
-                                            R.string.hide_password
+                        AppTextField(
+                            value = uiState.password,
+                            onValueChange = viewModel::onPasswordChanged,
+                            label = stringResource(id = R.string.password_label),
+                            modifier = Modifier.focusRequester(passwordFocusRequester),
+                            enabled = !uiState.isLoading,
+                            isError = uiState.passwordErrorRes != null,
+                            errorText = uiState.passwordErrorRes?.let(context::getString),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Next,
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    confirmPasswordFocusRequester.requestFocus()
+                                },
+                            ),
+                            visualTransformation = if (uiState.isPasswordVisible) {
+                                VisualTransformation.None
+                            } else {
+                                PasswordVisualTransformation()
+                            },
+                            trailingIcon = {
+                                IconButton(onClick = viewModel::onPasswordVisibilityToggle) {
+                                    Icon(
+                                        imageVector = if (uiState.isPasswordVisible) {
+                                            Icons.Rounded.VisibilityOff
                                         } else {
-                                            R.string.show_password
+                                            Icons.Rounded.Visibility
                                         },
-                                    ),
-                                )
-                            }
-                        },
-                    )
+                                        contentDescription = stringResource(
+                                            id = if (uiState.isPasswordVisible) {
+                                                R.string.hide_password
+                                            } else {
+                                                R.string.show_password
+                                            },
+                                        ),
+                                    )
+                                }
+                            },
+                        )
 
-                    AppTextField(
-                        value = uiState.confirmPassword,
-                        onValueChange = viewModel::onConfirmPasswordChanged,
-                        label = stringResource(id = R.string.confirm_password_label),
-                        enabled = !uiState.isLoading,
-                        isError = uiState.confirmPasswordErrorRes != null,
-                        errorText = uiState.confirmPasswordErrorRes?.let(context::getString),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Done,
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
+                        AppTextField(
+                            value = uiState.confirmPassword,
+                            onValueChange = viewModel::onConfirmPasswordChanged,
+                            label = stringResource(id = R.string.confirm_password_label),
+                            modifier = Modifier.focusRequester(confirmPasswordFocusRequester),
+                            enabled = !uiState.isLoading,
+                            isError = uiState.confirmPasswordErrorRes != null,
+                            errorText = uiState.confirmPasswordErrorRes?.let(context::getString),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Done,
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    focusManager.clearFocus()
+                                    viewModel.onSubmitClick()
+                                },
+                            ),
+                            visualTransformation = if (uiState.isConfirmPasswordVisible) {
+                                VisualTransformation.None
+                            } else {
+                                PasswordVisualTransformation()
+                            },
+                            trailingIcon = {
+                                IconButton(onClick = viewModel::onConfirmPasswordVisibilityToggle) {
+                                    Icon(
+                                        imageVector = if (uiState.isConfirmPasswordVisible) {
+                                            Icons.Rounded.VisibilityOff
+                                        } else {
+                                            Icons.Rounded.Visibility
+                                        },
+                                        contentDescription = stringResource(
+                                            id = if (uiState.isConfirmPasswordVisible) {
+                                                R.string.hide_password
+                                            } else {
+                                                R.string.show_password
+                                            },
+                                        ),
+                                    )
+                                }
+                            },
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        LoadingButton(
+                            text = stringResource(id = R.string.create_account_button),
+                            onClick = {
                                 focusManager.clearFocus()
                                 viewModel.onSubmitClick()
                             },
-                        ),
-                        visualTransformation = if (uiState.isConfirmPasswordVisible) {
-                            VisualTransformation.None
-                        } else {
-                            PasswordVisualTransformation()
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = viewModel::onConfirmPasswordVisibilityToggle) {
-                                Icon(
-                                    imageVector = if (uiState.isConfirmPasswordVisible) {
-                                        Icons.Rounded.VisibilityOff
-                                    } else {
-                                        Icons.Rounded.Visibility
-                                    },
-                                    contentDescription = stringResource(
-                                        id = if (uiState.isConfirmPasswordVisible) {
-                                            R.string.hide_password
-                                        } else {
-                                            R.string.show_password
-                                        },
-                                    ),
-                                )
-                            }
-                        },
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    LoadingButton(
-                        text = stringResource(id = R.string.create_account_button),
-                        onClick = {
-                            focusManager.clearFocus()
-                            viewModel.onSubmitClick()
-                        },
-                        isLoading = uiState.isLoading,
-                    )
+                            isLoading = uiState.isLoading,
+                        )
+                    }
                 }
             }
         }
