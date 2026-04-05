@@ -1,5 +1,11 @@
 package io.valneva.chatassistant.feature.auth.presentation.login
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -31,11 +38,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -62,6 +76,7 @@ import io.valneva.chatassistant.designsystem.component.LoadingButton
 import io.valneva.chatassistant.feature.auth.domain.AuthError
 import io.valneva.chatassistant.feature.auth.domain.AuthException
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
@@ -74,16 +89,23 @@ fun LoginScreen(
     val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
     val credentialManager = remember(context) { CredentialManager.create(context) }
+    val passwordFocusRequester = remember { FocusRequester() }
+    val serverClientId = stringResource(id = R.string.default_web_client_id)
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+    var isFormVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(viewModel, context, credentialManager) {
+    LaunchedEffect(Unit) {
+        isFormVisible = true
+    }
+
+    LaunchedEffect(viewModel, context, credentialManager, serverClientId) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 is LoginUiEffect.ShowSnackbar -> {
                     val snackbarResult = snackbarHostState.showSnackbar(
-                        message = context.getString(effect.messageRes),
+                        message = context.resources.getString(effect.messageRes),
                         actionLabel = effect.showRetry.takeIf { it }?.let {
-                            context.getString(R.string.retry)
+                            context.resources.getString(R.string.retry)
                         },
                         duration = SnackbarDuration.Long,
                     )
@@ -111,7 +133,7 @@ fun LoginScreen(
                     }
 
                     val request = buildGoogleCredentialRequest(
-                        serverClientId = context.getString(R.string.default_web_client_id),
+                        serverClientId = serverClientId,
                     )
                     val result = requestGoogleCredential(
                         credentialManager = credentialManager,
@@ -164,96 +186,124 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .widthIn(max = 480.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                AnimatedVisibility(
+                    visible = isFormVisible,
+                    enter = fadeIn(
+                        animationSpec = tween(
+                            durationMillis = 420,
+                            easing = FastOutSlowInEasing,
+                        ),
+                    ) + slideInVertically(
+                        animationSpec = tween(
+                            durationMillis = 420,
+                            easing = FastOutSlowInEasing,
+                        ),
+                        initialOffsetY = { it / 8 },
+                    ),
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.login_subtitle),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .widthIn(max = 480.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.login_subtitle),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    AppTextField(
-                        value = uiState.email,
-                        onValueChange = viewModel::onEmailChanged,
-                        label = stringResource(id = R.string.email_label),
-                        enabled = !uiState.isLoading,
-                        isError = uiState.emailErrorRes != null,
-                        errorText = uiState.emailErrorRes?.let(context::getString),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Next,
-                        ),
-                    )
+                        AppTextField(
+                            value = uiState.email,
+                            onValueChange = viewModel::onEmailChanged,
+                            label = stringResource(id = R.string.email_label),
+                            enabled = !uiState.isLoading,
+                            isError = uiState.emailErrorRes != null,
+                            errorText = uiState.emailErrorRes?.let(context::getString),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Next,
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    passwordFocusRequester.requestFocus()
+                                },
+                            ),
+                        )
 
-                    AppTextField(
-                        value = uiState.password,
-                        onValueChange = viewModel::onPasswordChanged,
-                        label = stringResource(id = R.string.password_label),
-                        enabled = !uiState.isLoading,
-                        isError = uiState.passwordErrorRes != null,
-                        errorText = uiState.passwordErrorRes?.let(context::getString),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Done,
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
+                        AppTextField(
+                            value = uiState.password,
+                            onValueChange = viewModel::onPasswordChanged,
+                            label = stringResource(id = R.string.password_label),
+                            modifier = Modifier.focusRequester(passwordFocusRequester),
+                            enabled = !uiState.isLoading,
+                            isError = uiState.passwordErrorRes != null,
+                            errorText = uiState.passwordErrorRes?.let(context::getString),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Done,
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    focusManager.clearFocus()
+                                    viewModel.onSignInClick()
+                                },
+                            ),
+                            visualTransformation = if (uiState.isPasswordVisible) {
+                                VisualTransformation.None
+                            } else {
+                                PasswordVisualTransformation()
+                            },
+                            trailingIcon = {
+                                IconButton(onClick = viewModel::onPasswordVisibilityToggle) {
+                                    Icon(
+                                        imageVector = if (uiState.isPasswordVisible) {
+                                            Icons.Rounded.VisibilityOff
+                                        } else {
+                                            Icons.Rounded.Visibility
+                                        },
+                                        contentDescription = stringResource(
+                                            id = if (uiState.isPasswordVisible) {
+                                                R.string.hide_password
+                                            } else {
+                                                R.string.show_password
+                                            },
+                                        ),
+                                    )
+                                }
+                            },
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        LoadingButton(
+                            text = stringResource(id = R.string.sign_in_button),
+                            onClick = {
                                 focusManager.clearFocus()
                                 viewModel.onSignInClick()
                             },
-                        ),
-                        visualTransformation = if (uiState.isPasswordVisible) {
-                            VisualTransformation.None
-                        } else {
-                            PasswordVisualTransformation()
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = viewModel::onPasswordVisibilityToggle) {
-                                Icon(
-                                    imageVector = if (uiState.isPasswordVisible) {
-                                        Icons.Rounded.VisibilityOff
-                                    } else {
-                                        Icons.Rounded.Visibility
-                                    },
-                                    contentDescription = stringResource(
-                                        id = if (uiState.isPasswordVisible) {
-                                            R.string.hide_password
-                                        } else {
-                                            R.string.show_password
-                                        },
-                                    ),
-                                )
-                            }
-                        },
-                    )
+                            isLoading = uiState.isLoading,
+                        )
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    LoadingButton(
-                        text = stringResource(id = R.string.sign_in_button),
-                        onClick = {
-                            focusManager.clearFocus()
-                            viewModel.onSignInClick()
-                        },
-                        isLoading = uiState.isLoading,
-                    )
-
-                    OutlinedButton(
-                        onClick = {
-                            focusManager.clearFocus()
-                            viewModel.onGoogleSignInClick()
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !uiState.isLoading,
-                        shape = MaterialTheme.shapes.large,
-                    ) {
-                        Text(text = stringResource(id = R.string.continue_with_google_button))
+                        OutlinedButton(
+                            onClick = {
+                                focusManager.clearFocus()
+                                viewModel.onGoogleSignInClick()
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !uiState.isLoading,
+                            shape = MaterialTheme.shapes.large,
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_google),
+                                contentDescription = null,
+                                tint = Color.Unspecified,
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(text = stringResource(id = R.string.continue_with_google_button))
+                        }
                     }
                 }
             }
