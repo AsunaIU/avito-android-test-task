@@ -4,6 +4,8 @@
     <!-- Common -->
     <string name="retry">Повторить</string>
     <string name="back">Назад</string>
+    <string name="main_menu">Главное меню</string>
+    <string name="main_drawer_header">Разделы</string>
 
     <!-- Login -->
     <string name="login_title">Вход в аккаунт</string>
@@ -36,9 +38,28 @@
     <string name="auth_error_generic">Что-то пошло не так. Попробуйте еще раз</string>
     <string name="auth_error_google_unavailable">Вход через Google недоступен на этом устройстве</string>
 
+    <!-- Navigation -->
+    <string name="nav_chats">Чаты</string>
+    <string name="nav_profile">Профиль</string>
+    <string name="nav_images">Изображения</string>
+
     <!-- Chat -->
     <string name="chats_placeholder_title">Чаты</string>
     <string name="chat_placeholder_title">Чат</string>
     <string name="profile_placeholder_title">Профиль</string>
     <string name="placeholder_message">Экран</string>
+
+    <!-- Main screens -->
+    <string name="chats_screen_title">Ваши чаты</string>
+    <string name="chats_screen_description">После логина вы уже попадаете в основной интерфейс. Следующим шагом здесь появятся поиск, список диалогов и создание нового чата.</string>
+    <string name="chats_screen_card_title">Каркас готов</string>
+    <string name="chats_screen_card_body">Drawer, глобальная тема и основная навигация уже работают. Теперь можно спокойно переходить к данным и Room.</string>
+    <string name="profile_screen_title">Настройки приложения</string>
+    <string name="profile_screen_description">Пока здесь доступно управление темой. Дальше добавим данные аккаунта, фото и выход из профиля.</string>
+    <string name="dark_theme">Тёмная тема</string>
+    <string name="dark_theme_description">Переключайте оформление вручную, настройка сохранится между запусками.</string>
+    <string name="images_screen_title">Генерация изображений</string>
+    <string name="images_screen_description">Экран уже встроен в основную навигацию, поэтому позже сюда можно будет добавить генерацию и историю результатов без переделки shell.</string>
+    <string name="images_screen_card_title">Маршрут готов</string>
+    <string name="images_screen_card_body">Сначала доведём до конца текстовые чаты и профиль, затем подключим сценарий с изображениями.</string>
 </resources>
