@@ -8,36 +8,28 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ChatBubbleOutline
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -48,30 +40,14 @@ import io.valneva.chatassistant.designsystem.component.ErrorSnackbar
 @Composable
 fun ChatsScreen(
     onOpenChat: (String) -> Unit,
-    searchActionTrigger: Int,
     modifier: Modifier = Modifier,
-    viewModel: ChatListViewModel = hiltViewModel(),
+    viewModel: ChatListViewModel,
 ) {
     val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
     val hasAuthenticatedUser = viewModel.hasAuthenticatedUser.collectAsStateWithLifecycle().value
     val chats = viewModel.chats.collectAsLazyPagingItems()
-
-    LaunchedEffect(viewModel) {
-        viewModel.effects.collect { effect ->
-            when (effect) {
-                is ChatListUiEffect.OpenChat -> onOpenChat(effect.chatId)
-            }
-        }
-    }
-
-    LaunchedEffect(searchActionTrigger) {
-        if (searchActionTrigger > 0) {
-            focusManager.clearFocus()
-            viewModel.onSearchClick()
-        }
-    }
 
     Scaffold(
         modifier = modifier,
@@ -113,21 +89,8 @@ fun ChatsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                SearchSection(
-                    searchQuery = uiState.searchQuery,
-                    onSearchQueryChanged = viewModel::onSearchQueryChanged,
-                    onSearchClick = {
-                        focusManager.clearFocus()
-                        viewModel.onSearchClick()
-                    },
-                    onClearClick = {
-                        focusManager.clearFocus()
-                        viewModel.onSearchCleared()
-                    },
-                )
-
                 when {
                     !hasAuthenticatedUser -> {
                         EmptyChatsState(
@@ -199,37 +162,6 @@ fun ChatsScreen(
             }
         }
     }
-}
-
-@Composable
-private fun SearchSection(
-    searchQuery: String,
-    onSearchQueryChanged: (String) -> Unit,
-    onSearchClick: () -> Unit,
-    onClearClick: () -> Unit,
-) {
-    OutlinedTextField(
-        value = searchQuery,
-        onValueChange = onSearchQueryChanged,
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        label = {
-            Text(text = stringResource(id = R.string.chats_search_label))
-        },
-        trailingIcon = {
-            if (searchQuery.isNotBlank()) {
-                IconButton(onClick = onClearClick) {
-                    Icon(
-                        imageVector = Icons.Rounded.Close,
-                        contentDescription = stringResource(id = R.string.clear_search),
-                    )
-                }
-            }
-        },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = { onSearchClick() }),
-        shape = MaterialTheme.shapes.large,
-    )
 }
 
 @Composable

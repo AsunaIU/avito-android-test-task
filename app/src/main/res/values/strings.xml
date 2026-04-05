@@ -6,6 +6,9 @@
     <string name="back">Назад</string>
     <string name="main_menu">Главное меню</string>
     <string name="main_drawer_header">Разделы</string>
+    <string name="drawer_search_hint">Поиск</string>
+    <string name="drawer_new_chat">Новый чат</string>
+    <string name="drawer_home">Главная</string>
 
     <!-- Login -->
     <string name="login_title">Вход в аккаунт</string>
@@ -60,7 +63,7 @@
     <string name="share_response">Поделиться</string>
     <string name="chat_not_found_title">Чат не найден</string>
     <string name="chat_not_found_body">Этот диалог не удалось загрузить. Вернитесь назад и откройте другой чат.</string>
-    <string name="chat_empty_hint">Напишите первое сообщение, чтобы начать переписку. История сохранится локально между открытиями экрана.</string>
+    <string name="chat_empty_hint">Напишите первое сообщение</string>
     <string name="you_label">Вы</string>
     <string name="assistant_label">Ассистент</string>
 
@@ -68,12 +71,29 @@
     <string name="chat_placeholder_title">Чат</string>
 
     <!-- Main screens -->
-    <string name="profile_screen_title">Настройки приложения</string>
-    <string name="profile_screen_description">Здесь будут данные аккаунта и выход.</string>
+    <string name="profile_screen_title">Профиль</string>
+    <string name="profile_screen_description">Управление аккаунтом</string>
+    <string name="profile_photo">Фото профиля</string>
+    <string name="profile_change_photo">Изменить фото</string>
+    <string name="profile_name_label">Имя</string>
+    <string name="profile_email_label">E-mail</string>
+    <string name="profile_phone_label">Телефон</string>
+    <string name="profile_tokens_label">Токены</string>
+    <string name="profile_save_name">Сохранить имя</string>
+    <string name="profile_sign_out">Выйти из аккаунта</string>
+    <string name="profile_no_name">Без имени</string>
+    <string name="profile_no_phone">Не указан</string>
+    <string name="profile_name_empty">Введите имя</string>
+    <string name="profile_name_saved">Имя обновлено</string>
+    <string name="profile_photo_updated">Фото обновлено</string>
+    <string name="profile_update_failed">Не удалось обновить профиль</string>
     <string name="dark_theme">Тёмная тема</string>
     <string name="dark_theme_description">Переключайте оформление вручную, настройка сохранится между запусками.</string>
     <string name="images_screen_title">Генерация изображений</string>
-    <string name="images_screen_description">Раздел изображений в работе.</string>
-    <string name="images_screen_card_title">Скоро</string>
-    <string name="images_screen_card_body">Генерация появится здесь.</string>
+    <string name="images_prompt_label">Промпт</string>
+    <string name="images_prompt_placeholder">Например: нарисуй розового кота в стиле Кандинского</string>
+    <string name="images_generate">Сгенерировать</string>
+    <string name="images_retry">Повторить</string>
+    <string name="images_empty_hint">Опишите изображение, и ассистент попробует сгенерировать его через GigaChat.</string>
+    <string name="images_result">Сгенерированное изображение</string>
 </resources>

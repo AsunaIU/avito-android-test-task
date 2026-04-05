@@ -15,7 +15,15 @@ data class GigaChatTokenResponse(
 data class GigaChatChatRequest(
     val model: String,
     val messages: List<GigaChatMessageDto>,
+    @Json(name = "function_call")
+    val functionCall: String? = null,
+    val functions: List<GigaChatFunctionDto>? = null,
     val stream: Boolean = false,
+)
+
+@JsonClass(generateAdapter = true)
+data class GigaChatFunctionDto(
+    val name: String,
 )
 
 @JsonClass(generateAdapter = true)
@@ -47,5 +55,12 @@ data class GigaChatUsageDto(
 
 data class GigaChatReply(
     val content: String,
+    val totalTokens: Int?,
+)
+
+data class GigaChatGeneratedImage(
+    val fileId: String,
+    val bytes: ByteArray,
+    val message: String,
     val totalTokens: Int?,
 )

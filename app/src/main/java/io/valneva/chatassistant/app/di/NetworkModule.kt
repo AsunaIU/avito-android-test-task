@@ -34,8 +34,9 @@ object NetworkModule {
     fun provideOkHttpClient(): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(180, TimeUnit.SECONDS)
+            .writeTimeout(180, TimeUnit.SECONDS)
+            .callTimeout(180, TimeUnit.SECONDS)
 
         if (BuildConfig.DEBUG) {
             builder.addInterceptor(
