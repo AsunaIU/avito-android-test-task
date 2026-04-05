@@ -9,6 +9,7 @@ import io.valneva.chatassistant.core.data.local.entity.MessageEntity
 import io.valneva.chatassistant.feature.auth.domain.AuthInteractor
 import io.valneva.chatassistant.feature.chat.data.ChatRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +23,7 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ChatViewModel @Inject constructor(
+class ConversationViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     authInteractor: AuthInteractor,
     private val repository: ChatRepository,
@@ -37,8 +38,8 @@ class ChatViewModel @Inject constructor(
             initialValue = authInteractor.getCurrentUser()?.uid,
         )
 
-    private val _uiState = MutableStateFlow(ChatUiState())
-    val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(ConversationUiState())
+    val uiState: StateFlow<ConversationUiState> = _uiState.asStateFlow()
 
     val messages: StateFlow<List<MessageEntity>> = currentUserId
         .flatMapLatest { userId ->
@@ -86,7 +87,7 @@ class ChatViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSending = true)
-            repository.sendUserMessage(
+            val pendingAssistantReply = repository.sendUserMessage(
                 chatId = chatId,
                 userId = userId,
                 text = text,
@@ -95,6 +96,47 @@ class ChatViewModel @Inject constructor(
                 input = "",
                 isSending = false,
             )
+
+            pendingAssistantReply?.let { pendingReply ->
+                simulateAssistantFailure(
+                    messageId = pendingReply.assistantMessageId,
+                    userId = userId,
+                )
+            }
         }
+    }
+
+    fun onRetryAssistantMessage(messageId: String) {
+        val userId = currentUserId.value ?: return
+
+        viewModelScope.launch {
+            val pendingAssistantReply = repository.retryAssistantReply(
+                messageId = messageId,
+                userId = userId,
+            ) ?: return@launch
+
+            simulateAssistantFailure(
+                messageId = pendingAssistantReply.assistantMessageId,
+                userId = userId,
+            )
+        }
+    }
+
+    private fun simulateAssistantFailure(
+        messageId: String,
+        userId: String,
+    ) {
+        viewModelScope.launch {
+            delay(900)
+            repository.markAssistantReplyFailed(
+                messageId = messageId,
+                userId = userId,
+                errorMessage = ASSISTANT_ERROR_MESSAGE,
+            )
+        }
+    }
+
+    private companion object {
+        const val ASSISTANT_ERROR_MESSAGE = "Не удалось получить ответ"
     }
 }

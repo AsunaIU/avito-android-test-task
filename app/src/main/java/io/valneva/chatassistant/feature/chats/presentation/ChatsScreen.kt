@@ -50,7 +50,7 @@ fun ChatsScreen(
     onOpenChat: (String) -> Unit,
     searchActionTrigger: Int,
     modifier: Modifier = Modifier,
-    viewModel: ChatsViewModel = hiltViewModel(),
+    viewModel: ChatListViewModel = hiltViewModel(),
 ) {
     val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -61,7 +61,7 @@ fun ChatsScreen(
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is ChatsUiEffect.OpenChat -> onOpenChat(effect.chatId)
+                is ChatListUiEffect.OpenChat -> onOpenChat(effect.chatId)
             }
         }
     }

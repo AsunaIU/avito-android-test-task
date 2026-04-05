@@ -27,15 +27,15 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ChatsViewModel @Inject constructor(
+class ChatListViewModel @Inject constructor(
     authInteractor: AuthInteractor,
     private val repository: ChatsRepository,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ChatsUiState())
-    val uiState: StateFlow<ChatsUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(ChatListUiState())
+    val uiState: StateFlow<ChatListUiState> = _uiState.asStateFlow()
 
-    private val _effects = MutableSharedFlow<ChatsUiEffect>()
+    private val _effects = MutableSharedFlow<ChatListUiEffect>()
     val effects = _effects.asSharedFlow()
 
     private val currentUserId: StateFlow<String?> = authInteractor.observeCurrentUser()
@@ -97,7 +97,7 @@ class ChatsViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isCreatingChat = true)
             val chatId = repository.createChat(userId = userId)
             _uiState.value = _uiState.value.copy(isCreatingChat = false)
-            _effects.emit(ChatsUiEffect.OpenChat(chatId = chatId))
+            _effects.emit(ChatListUiEffect.OpenChat(chatId = chatId))
         }
     }
 }
