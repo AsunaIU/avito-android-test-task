@@ -1,11 +1,14 @@
 package io.valneva.chatassistant.feature.auth.domain
 
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class AuthInteractor @Inject constructor(
     private val repository: AuthRepository,
 ) {
     fun getCurrentUser(): AuthUser? = repository.getCurrentUser()
+
+    fun observeCurrentUser(): Flow<AuthUser?> = repository.observeCurrentUser()
 
     suspend fun signIn(
         email: String,

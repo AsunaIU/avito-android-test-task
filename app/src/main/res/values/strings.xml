@@ -42,24 +42,38 @@
     <string name="nav_chats">Чаты</string>
     <string name="nav_profile">Профиль</string>
     <string name="nav_images">Изображения</string>
+    <string name="create_chat">Создать чат</string>
+    <string name="search_chats">Искать чаты</string>
+    <string name="clear_search">Очистить поиск</string>
+    <string name="chats_search_label">Поиск по названию</string>
+    <string name="chat_without_messages">Сообщений пока нет</string>
+    <string name="chats_empty_title">Пока нет ни одного чата</string>
+    <string name="chats_empty_body">Создайте первый диалог через кнопку справа внизу, и он сразу появится в списке.</string>
+    <string name="chats_empty_search_title">Ничего не найдено</string>
+    <string name="chats_empty_search_body">Попробуйте сократить запрос или очистить поиск, чтобы снова увидеть все чаты.</string>
+    <string name="chats_auth_required_title">Нужна авторизация</string>
+    <string name="chats_auth_required_body">Чтобы работать с локальными чатами, сначала войдите в аккаунт.</string>
+    <string name="message_input_label">Сообщение</string>
+    <string name="send_message">Отправить сообщение</string>
+    <string name="assistant_generating">Ассистент печатает</string>
+    <string name="assistant_error">Не удалось получить ответ</string>
+    <string name="share_response">Поделиться</string>
+    <string name="chat_not_found_title">Чат не найден</string>
+    <string name="chat_not_found_body">Этот диалог не удалось загрузить. Вернитесь назад и откройте другой чат.</string>
+    <string name="chat_empty_hint">Напишите первое сообщение, чтобы начать переписку. История сохранится локально между открытиями экрана.</string>
+    <string name="you_label">Вы</string>
+    <string name="assistant_label">Ассистент</string>
 
     <!-- Chat -->
-    <string name="chats_placeholder_title">Чаты</string>
     <string name="chat_placeholder_title">Чат</string>
-    <string name="profile_placeholder_title">Профиль</string>
-    <string name="placeholder_message">Экран</string>
 
     <!-- Main screens -->
-    <string name="chats_screen_title">Ваши чаты</string>
-    <string name="chats_screen_description">После логина вы уже попадаете в основной интерфейс. Следующим шагом здесь появятся поиск, список диалогов и создание нового чата.</string>
-    <string name="chats_screen_card_title">Каркас готов</string>
-    <string name="chats_screen_card_body">Drawer, глобальная тема и основная навигация уже работают. Теперь можно спокойно переходить к данным и Room.</string>
     <string name="profile_screen_title">Настройки приложения</string>
-    <string name="profile_screen_description">Пока здесь доступно управление темой. Дальше добавим данные аккаунта, фото и выход из профиля.</string>
+    <string name="profile_screen_description">Здесь будут данные аккаунта и выход.</string>
     <string name="dark_theme">Тёмная тема</string>
     <string name="dark_theme_description">Переключайте оформление вручную, настройка сохранится между запусками.</string>
     <string name="images_screen_title">Генерация изображений</string>
-    <string name="images_screen_description">Экран уже встроен в основную навигацию, поэтому позже сюда можно будет добавить генерацию и историю результатов без переделки shell.</string>
-    <string name="images_screen_card_title">Маршрут готов</string>
-    <string name="images_screen_card_body">Сначала доведём до конца текстовые чаты и профиль, затем подключим сценарий с изображениями.</string>
+    <string name="images_screen_description">Раздел изображений в работе.</string>
+    <string name="images_screen_card_title">Скоро</string>
+    <string name="images_screen_card_body">Генерация появится здесь.</string>
 </resources>
