@@ -1,0 +1,14 @@
+{
+  "//": "THIS IS AN EXAMPLE FILE",
+  "//2": "DO NOT USE AS REAL FIREBASE CONFIG",
+  "project_info": {
+    "project_id": "your-firebase-project-id"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "your-app-id"
+      }
+    }
+  ]
+}
