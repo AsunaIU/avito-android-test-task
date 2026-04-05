@@ -12,6 +12,9 @@ import io.valneva.chatassistant.feature.auth.domain.AuthException
 import io.valneva.chatassistant.feature.auth.domain.AuthRepository
 import io.valneva.chatassistant.feature.auth.domain.AuthUser
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,6 +24,10 @@ class AuthRepositoryImpl @Inject constructor(
 ) : AuthRepository {
 
     override fun getCurrentUser(): AuthUser? = firebaseAuthDataSource.getCurrentUser()?.toDomain()
+
+    override fun observeCurrentUser(): Flow<AuthUser?> = firebaseAuthDataSource.observeCurrentUser()
+        .map { user -> user?.toDomain() }
+        .distinctUntilChanged()
 
     override suspend fun signIn(
         email: String,
