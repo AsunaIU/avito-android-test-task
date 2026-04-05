@@ -10,12 +10,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import io.valneva.chatassistant.app.navigation.AppRoot
 import io.valneva.chatassistant.app.startup.AppLaunchViewModel
+import io.valneva.chatassistant.app.theme.AppThemeViewModel
+import androidx.compose.foundation.isSystemInDarkTheme
 import io.valneva.chatassistant.designsystem.theme.ChatAssistantTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val appLaunchViewModel: AppLaunchViewModel by viewModels()
+    private val appThemeViewModel: AppThemeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -28,10 +31,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val uiState = appLaunchViewModel.uiState.collectAsStateWithLifecycle().value
+            val launchUiState = appLaunchViewModel.uiState.collectAsStateWithLifecycle().value
+            val themeUiState = appThemeViewModel.uiState.collectAsStateWithLifecycle().value
+            val darkTheme = themeUiState.isDarkTheme ?: isSystemInDarkTheme()
 
-            ChatAssistantTheme {
-                AppRoot(startDestination = uiState.startDestination)
+            ChatAssistantTheme(darkTheme = darkTheme) {
+                AppRoot(
+                    startDestination = launchUiState.startDestination,
+                    isDarkTheme = darkTheme,
+                    onThemeToggle = appThemeViewModel::onDarkThemeChanged,
+                )
             }
         }
     }

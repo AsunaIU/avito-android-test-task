@@ -19,7 +19,7 @@ class AppLaunchViewModel @Inject constructor(
 
     init {
         val startDestination = if (authInteractor.getCurrentUser() != null) {
-            AppRoute.Chats.route
+            AppRoute.Main.route
         } else {
             AppRoute.Login.route
         }

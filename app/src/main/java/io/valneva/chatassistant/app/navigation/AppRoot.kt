@@ -10,6 +10,8 @@ import androidx.navigation.compose.rememberNavController
 @Composable
 fun AppRoot(
     startDestination: String?,
+    isDarkTheme: Boolean,
+    onThemeToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
@@ -22,6 +24,8 @@ fun AppRoot(
             AppNavHost(
                 navController = navController,
                 startDestination = route,
+                isDarkTheme = isDarkTheme,
+                onThemeToggle = onThemeToggle,
             )
         }
     }
