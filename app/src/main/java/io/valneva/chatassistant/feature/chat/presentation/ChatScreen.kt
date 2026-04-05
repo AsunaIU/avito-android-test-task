@@ -155,7 +155,7 @@ fun ChatScreen(
                                     onShareClick = { text ->
                                         shareText(
                                             text = text,
-                                            chooserTitle = context.getString(R.string.share_response),
+                                            chooserTitle = context.resources.getString(R.string.share_response),
                                             context = context,
                                         )
                                     },
