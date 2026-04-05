@@ -23,6 +23,7 @@ import androidx.navigation.navArgument
 import io.valneva.chatassistant.R
 import io.valneva.chatassistant.feature.auth.presentation.login.LoginScreen
 import io.valneva.chatassistant.feature.auth.presentation.register.RegisterScreen
+import io.valneva.chatassistant.feature.chat.presentation.ChatScreen
 
 @Composable
 fun AppNavHost(
@@ -61,6 +62,9 @@ fun AppNavHost(
             MainScreen(
                 isDarkTheme = isDarkTheme,
                 onThemeToggle = onThemeToggle,
+                onOpenChat = { chatId ->
+                    navController.navigate(AppRoute.Chat.createRoute(chatId))
+                },
             )
         }
 
@@ -72,7 +76,7 @@ fun AppNavHost(
                 },
             ),
         ) {
-            PlaceholderScreen(title = stringResource(id = R.string.chat_placeholder_title))
+            ChatScreen(onNavigateBack = navController::navigateUp)
         }
     }
 }

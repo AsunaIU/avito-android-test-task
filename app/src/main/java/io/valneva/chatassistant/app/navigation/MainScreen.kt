@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     isDarkTheme: Boolean,
     onThemeToggle: (Boolean) -> Unit,
+    onOpenChat: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
@@ -149,7 +150,7 @@ fun MainScreen(
                     startDestination = AppRoute.Chats.route,
                 ) {
                     composable(route = AppRoute.Chats.route) {
-                        ChatsScreen()
+                        ChatsScreen(onOpenChat = onOpenChat)
                     }
 
                     composable(route = AppRoute.Profile.route) {
