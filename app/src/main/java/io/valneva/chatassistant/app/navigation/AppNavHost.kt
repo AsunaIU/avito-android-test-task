@@ -52,6 +52,9 @@ fun AppNavHost(
                 onOpenChat = { chatId ->
                     navController.navigate(AppRoute.Chat.createRoute(chatId))
                 },
+                onSignedOut = {
+                    navController.navigateToLogin(clearBackStack = true)
+                },
             )
         }
 
@@ -75,6 +78,18 @@ private fun NavHostController.navigateToMain(clearBackStack: Boolean) {
 
         if (clearBackStack) {
             popUpTo(graph.findStartDestination().id) {
+                inclusive = true
+            }
+        }
+    }
+}
+
+private fun NavHostController.navigateToLogin(clearBackStack: Boolean) {
+    navigate(AppRoute.Login.route) {
+        launchSingleTop = true
+
+        if (clearBackStack) {
+            popUpTo(AppRoute.Main.route) {
                 inclusive = true
             }
         }

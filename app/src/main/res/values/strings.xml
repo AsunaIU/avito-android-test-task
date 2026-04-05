@@ -6,6 +6,9 @@
     <string name="back">Назад</string>
     <string name="main_menu">Главное меню</string>
     <string name="main_drawer_header">Разделы</string>
+    <string name="drawer_search_hint">Поиск</string>
+    <string name="drawer_new_chat">Новый чат</string>
+    <string name="drawer_home">Главная</string>
 
     <!-- Login -->
     <string name="login_title">Вход в аккаунт</string>
@@ -68,8 +71,22 @@
     <string name="chat_placeholder_title">Чат</string>
 
     <!-- Main screens -->
-    <string name="profile_screen_title">Настройки приложения</string>
-    <string name="profile_screen_description">Здесь будут данные аккаунта и выход.</string>
+    <string name="profile_screen_title">Профиль</string>
+    <string name="profile_screen_description">Управление аккаунтом</string>
+    <string name="profile_photo">Фото профиля</string>
+    <string name="profile_change_photo">Изменить фото</string>
+    <string name="profile_name_label">Имя</string>
+    <string name="profile_email_label">E-mail</string>
+    <string name="profile_phone_label">Телефон</string>
+    <string name="profile_tokens_label">Токены</string>
+    <string name="profile_save_name">Сохранить имя</string>
+    <string name="profile_sign_out">Выйти из аккаунта</string>
+    <string name="profile_no_name">Без имени</string>
+    <string name="profile_no_phone">Не указан</string>
+    <string name="profile_name_empty">Введите имя</string>
+    <string name="profile_name_saved">Имя обновлено</string>
+    <string name="profile_photo_updated">Фото обновлено</string>
+    <string name="profile_update_failed">Не удалось обновить профиль</string>
     <string name="dark_theme">Тёмная тема</string>
     <string name="dark_theme_description">Переключайте оформление вручную, настройка сохранится между запусками.</string>
     <string name="images_screen_title">Генерация изображений</string>
