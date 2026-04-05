@@ -8,14 +8,19 @@ import io.valneva.chatassistant.app.navigation.AppRoute
 import io.valneva.chatassistant.core.data.local.entity.MessageEntity
 import io.valneva.chatassistant.feature.auth.domain.AuthInteractor
 import io.valneva.chatassistant.feature.chat.data.ChatRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -24,32 +29,44 @@ class ChatViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val chatId: String = checkNotNull(savedStateHandle[AppRoute.Chat.CHAT_ID_ARG])
-    private val currentUserId: String? = authInteractor.getCurrentUser()?.uid
+    private val currentUserId: StateFlow<String?> = authInteractor.observeCurrentUser()
+        .map { user -> user?.uid }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = authInteractor.getCurrentUser()?.uid,
+        )
 
     private val _uiState = MutableStateFlow(ChatUiState())
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
-    val messages: StateFlow<List<MessageEntity>> = currentUserId?.let { userId ->
-        repository.observeMessages(chatId = chatId, userId = userId)
-    }?.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyList(),
-    ) ?: MutableStateFlow(emptyList())
+    val messages: StateFlow<List<MessageEntity>> = currentUserId
+        .flatMapLatest { userId ->
+            if (userId.isNullOrBlank()) {
+                flowOf(emptyList())
+            } else {
+                repository.observeMessages(chatId = chatId, userId = userId)
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList(),
+        )
 
     init {
         observeChat()
     }
 
     private fun observeChat() {
-        val userId = currentUserId
-        if (userId == null) {
-            _uiState.value = _uiState.value.copy(isMissingChat = true)
-            return
-        }
-
         viewModelScope.launch {
-            repository.observeChat(chatId = chatId, userId = userId).collect { chat ->
+            currentUserId.flatMapLatest { userId ->
+                if (userId.isNullOrBlank()) {
+                    flowOf(null)
+                } else {
+                    repository.observeChat(chatId = chatId, userId = userId)
+                }
+            }.collect { chat ->
                 _uiState.value = _uiState.value.copy(
                     title = chat?.title.orEmpty(),
                     isMissingChat = chat == null,
@@ -63,7 +80,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun onSendClick() {
-        val userId = currentUserId ?: return
+        val userId = currentUserId.value ?: return
         val text = _uiState.value.input.trim()
         if (text.isBlank() || _uiState.value.isSending) return
 

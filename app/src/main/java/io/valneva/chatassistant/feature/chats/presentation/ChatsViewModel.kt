@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,11 +28,9 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ChatsViewModel @Inject constructor(
-    private val authInteractor: AuthInteractor,
+    authInteractor: AuthInteractor,
     private val repository: ChatsRepository,
 ) : ViewModel() {
-
-    private val currentUserId: String? = authInteractor.getCurrentUser()?.uid
 
     private val _uiState = MutableStateFlow(ChatsUiState())
     val uiState: StateFlow<ChatsUiState> = _uiState.asStateFlow()
@@ -39,8 +38,16 @@ class ChatsViewModel @Inject constructor(
     private val _effects = MutableSharedFlow<ChatsUiEffect>()
     val effects = _effects.asSharedFlow()
 
+    private val currentUserId: StateFlow<String?> = authInteractor.observeCurrentUser()
+        .map { user -> user?.uid }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = authInteractor.getCurrentUser()?.uid,
+        )
+
     val chats: Flow<PagingData<ChatEntity>> = uiState
-        .combine(flowOf(currentUserId)) { state, userId ->
+        .combine(currentUserId) { state, userId ->
             userId to state.appliedQuery.trim()
         }
         .distinctUntilChanged()
@@ -53,11 +60,12 @@ class ChatsViewModel @Inject constructor(
         }
         .cachedIn(viewModelScope)
 
-    val hasAuthenticatedUser: StateFlow<Boolean> = flowOf(currentUserId != null)
+    val hasAuthenticatedUser: StateFlow<Boolean> = currentUserId
+        .map { userId -> !userId.isNullOrBlank() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = currentUserId != null,
+            initialValue = !currentUserId.value.isNullOrBlank(),
         )
 
     fun onSearchQueryChanged(query: String) {
@@ -82,7 +90,7 @@ class ChatsViewModel @Inject constructor(
     }
 
     fun onCreateChatClick() {
-        val userId = currentUserId ?: return
+        val userId = currentUserId.value ?: return
         if (_uiState.value.isCreatingChat) return
 
         viewModelScope.launch {
